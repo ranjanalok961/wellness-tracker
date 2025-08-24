@@ -60,13 +60,15 @@ const Dashboard = () => {
   }, [navigate]);
 
   // Fetch metrics
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     if (!auth.currentUser) return;
+
     const q = query(
       metricsRef,
       where("user", "==", auth.currentUser.email),
       orderBy("date", "asc")
     );
+
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() }))
@@ -77,12 +79,13 @@ const Dashboard = () => {
         }
         return true;
       });
+
     setMetrics(data);
-  };
+  }, [metricsRef, startDate, endDate]);
 
   useEffect(() => {
     fetchMetrics();
-  }, [startDate, endDate]);
+  }, [fetchMetrics]);
 
   // Save metric
   const handleSaveMetric = async (e) => {
